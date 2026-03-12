@@ -77,7 +77,7 @@ def run_agent(agent_id: str, task: str, model: str = None, role: str = None):
             messages=[{"role": "user", "content": task}],
         )
 
-        # ขั้น 3: เขียนผลลัพธ์
+        # ขั้น 3: เขียนผลลัพธ์ (รองรับ thinking blocks)
         update_office(agent_id, "writing", "กำลังเขียนผลลัพธ์...")
         result = next((b.text for b in response.content if b.type == "text"), "")
         time.sleep(0.5)
