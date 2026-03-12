@@ -79,16 +79,65 @@ python agent_runner.py claude-haiku "List 3 prompt engineering techniques" --str
 
 ## Agents
 
-Configured in `config/team.json`
+Agents are defined in `config/team.json` — add, remove, or modify agents freely, no code changes needed.
 
-| Agent | Role | Model |
-|-------|------|-------|
-| `claude-opus` | Lead Researcher — deep analysis | claude-opus-4-6 |
-| `claude-sonnet` | Code Architect — system design & coding | claude-sonnet-4-6 |
-| `claude-haiku` | Quick Responder — fast, lightweight tasks | claude-haiku-4-5 |
-| `claude-code` | Dev Agent — debug, refactor, test | claude-sonnet-4-6 |
+| Field | Description |
+|-------|-------------|
+| `name` | Display name shown in the UI |
+| `role` | Short role description |
+| `model` | Model ID to use |
+| `provider` | `anthropic` \| `openai` \| `ollama` |
+| `base_url` | Custom API endpoint (for ollama or compatible APIs) |
+| `color` | Agent dot color (hex) |
+| `system_prompt` | Full system prompt defining capabilities and behavior |
 
-Add or modify agents by editing `config/team.json`.
+### Supported Providers
+
+| Provider | API Key | Notes |
+|----------|---------|-------|
+| `anthropic` | `ANTHROPIC_API_KEY` | Default |
+| `openai` | `OPENAI_API_KEY` | GPT-4o, o1, etc. |
+| `ollama` | — | Local models via Ollama |
+| custom | `{PROVIDER}_API_KEY` | Any OpenAI-compatible endpoint |
+
+### Example: adding an Ollama agent
+
+```json
+"qwen-local": {
+  "name": "Qwen Local",
+  "role": "Local Assistant",
+  "model": "qwen2.5:7b",
+  "provider": "ollama",
+  "base_url": "http://localhost:11434/v1",
+  "color": "#f59e0b",
+  "system_prompt": "You are a local assistant named qwen-local..."
+}
+```
+
+### Example: adding an OpenAI agent
+
+```json
+"gpt-agent": {
+  "name": "GPT Agent",
+  "role": "OpenAI Assistant",
+  "model": "gpt-4o",
+  "provider": "openai",
+  "color": "#10b981",
+  "system_prompt": "You are an OpenAI assistant named gpt-agent..."
+}
+```
+
+### Configuring the Boss (AUTO mode)
+
+By default the Boss uses `claude-sonnet-4-6`. Override by adding a `"boss"` key:
+
+```json
+"boss": {
+  "provider": "ollama",
+  "model": "qwen2.5:14b",
+  "base_url": "http://localhost:11434/v1"
+}
+```
 
 ---
 

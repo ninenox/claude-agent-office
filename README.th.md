@@ -79,16 +79,65 @@ python agent_runner.py claude-haiku "สรุป 3 เทคนิค prompt en
 
 ## Agents
 
-กำหนดได้ที่ `config/team.json`
+กำหนดได้ที่ `config/team.json` — เพิ่ม ลบ หรือแก้ไข agent ได้เลยโดยไม่ต้องแก้โค้ด
 
-| Agent | บทบาท | Model |
-|-------|--------|-------|
-| `claude-opus` | Lead Researcher — วิเคราะห์เชิงลึก | claude-opus-4-6 |
-| `claude-sonnet` | Code Architect — ออกแบบระบบ เขียนโค้ด | claude-sonnet-4-6 |
-| `claude-haiku` | Quick Responder — ตอบเร็ว งานเบา | claude-haiku-4-5 |
-| `claude-code` | Dev Agent — debug, refactor, test | claude-sonnet-4-6 |
+| Field | คำอธิบาย |
+|-------|----------|
+| `name` | ชื่อที่แสดงใน UI |
+| `role` | คำอธิบายตำแหน่งสั้นๆ |
+| `model` | Model ID ที่ใช้ |
+| `provider` | `anthropic` \| `openai` \| `ollama` |
+| `base_url` | API endpoint (สำหรับ ollama หรือ compatible API) |
+| `color` | สีของ agent (hex) |
+| `system_prompt` | System prompt กำหนดความสามารถและแนวทางการทำงาน |
 
-เพิ่ม/แก้ไข agent ได้โดยแก้ไฟล์ `config/team.json`
+### Provider ที่รองรับ
+
+| Provider | API Key | หมายเหตุ |
+|----------|---------|----------|
+| `anthropic` | `ANTHROPIC_API_KEY` | Default |
+| `openai` | `OPENAI_API_KEY` | GPT-4o, o1 ฯลฯ |
+| `ollama` | — | รัน model ใน local |
+| custom | `{PROVIDER}_API_KEY` | OpenAI-compatible endpoint อื่นๆ |
+
+### ตัวอย่าง: เพิ่ม Ollama agent
+
+```json
+"qwen-local": {
+  "name": "Qwen Local",
+  "role": "Local Assistant",
+  "model": "qwen2.5:7b",
+  "provider": "ollama",
+  "base_url": "http://localhost:11434/v1",
+  "color": "#f59e0b",
+  "system_prompt": "คุณคือ Local Assistant ชื่อ qwen-local..."
+}
+```
+
+### ตัวอย่าง: เพิ่ม OpenAI agent
+
+```json
+"gpt-agent": {
+  "name": "GPT Agent",
+  "role": "OpenAI Assistant",
+  "model": "gpt-4o",
+  "provider": "openai",
+  "color": "#10b981",
+  "system_prompt": "คุณคือ OpenAI assistant ชื่อ gpt-agent..."
+}
+```
+
+### กำหนด Boss (AUTO mode)
+
+Boss ใช้ `claude-sonnet-4-6` เป็น default เปลี่ยนได้โดยเพิ่ม key `"boss"`:
+
+```json
+"boss": {
+  "provider": "ollama",
+  "model": "qwen2.5:14b",
+  "base_url": "http://localhost:11434/v1"
+}
+```
 
 ---
 
