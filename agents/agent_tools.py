@@ -3,12 +3,13 @@ Agent Tools — Agent ที่ใช้ tools ได้ (web search, write file
 """
 
 import anthropic
+import httpx
 import json
 import os
 import time
 from agent_runner import update_office, load_team_config
 
-client = anthropic.Anthropic(timeout=60.0)
+client = anthropic.Anthropic(timeout=httpx.Timeout(600.0, connect=10.0))
 
 # ─── Tool Definitions ───
 TOOLS = [

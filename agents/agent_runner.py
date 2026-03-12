@@ -3,6 +3,7 @@ Agent Runner — เรียก Claude API แล้วอัพเดทสถ
 """
 
 import anthropic
+import httpx
 import json
 import os
 import time
@@ -11,7 +12,7 @@ from filelock import FileLock
 STATE_FILE = os.path.join(os.path.dirname(__file__), "..", "state.json")
 TEAM_CONFIG = os.path.join(os.path.dirname(__file__), "..", "config", "team.json")
 
-client = anthropic.Anthropic(timeout=60.0)
+client = anthropic.Anthropic(timeout=httpx.Timeout(600.0, connect=10.0))
 
 
 def load_team_config():
