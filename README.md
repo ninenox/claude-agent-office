@@ -79,7 +79,7 @@ python agent_runner.py claude-haiku "List 3 prompt engineering techniques" --str
 
 ## Agents
 
-Agents are defined in `config/team.json` — add, remove, or modify agents freely, no code changes needed.
+Agents are defined in `config/team.json`. The UI loads agent configuration dynamically from `/team` at startup — **no code changes needed**. Add, remove, or rename agents by editing `team.json` only, then refresh the browser.
 
 | Field | Description |
 |-------|-------------|
@@ -155,6 +155,7 @@ python main.py
 
 | Method | Path | Description |
 |--------|------|-------------|
+| GET | `/team` | Get team config from `team.json` (used by UI on load) |
 | GET | `/status` | Get all agent statuses |
 | POST | `/status` | Update a single agent's status |
 | POST | `/run` | Send tasks and run agents in the background |
