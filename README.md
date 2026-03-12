@@ -1,11 +1,13 @@
 # Claude Agent Office 🏢
 
-Pixel-art office dashboard แสดง Claude AI team ทำงาน real-time
-แต่ละ agent เดินไปโซนต่างๆ (โต๊ะ, กระดาน, break room) ตามสถานะงาน 
+> [🇹🇭 ภาษาไทย](README.th.md)
 
-การใช้งานมี 2 Mode:
-1) Manual สั่งงาน agent ทีล่ะตัว
-2) Auto สั่งงานครั้งเดียว agent จะประชุมและแบ่งงานกันทำเองตามเหมาะสม
+Pixel-art office dashboard showing a Claude AI team working in real-time.
+Each agent walks to different zones (desk, whiteboard, break room) based on their current task status — with waypoint pathfinding to navigate around room walls.
+
+**Two modes:**
+- **Manual** — assign tasks to each agent individually
+- **Auto** — describe a goal once; the Boss AI analyzes and distributes work automatically
 
 ![Claude Agent Office](images/example.png)
 
@@ -25,68 +27,68 @@ export ANTHROPIC_API_KEY=sk-ant-...
 python main.py
 ```
 
-เปิดเบราว์เซอร์: http://localhost:19000
+Open browser: http://localhost:19000
 
 ---
 
-## วิธีใช้งาน
+## Usage
 
 ### ⚡ MANUAL Mode
 
-กด **⚡ TASK DISPATCH** ที่ด้านบนของหน้าเว็บ → เลือก tab **⚙ MANUAL**
+Click **⚡ TASK DISPATCH** at the top → select the **⚙ MANUAL** tab.
 
-- พิมพ์งานในช่อง input ของแต่ละ agent
-- กด **▶ RUN** เพื่อส่งงาน agent ทีละตัว หรือ `Ctrl+Enter`
-- กด **🚀 DISPATCH ALL** เพื่อส่งงานทุก agent พร้อมกัน
-- กด **■ STOP** หน้าชื่อ agent เพื่อหยุดงานนั้น หรือ **■ STOP ALL** เพื่อหยุดทุกตัว
+- Type a task in each agent's input box
+- Click **▶ RUN** to send a task to one agent, or press `Ctrl+Enter`
+- Click **🚀 DISPATCH ALL** to send tasks to all agents simultaneously
+- Click **■ STOP** next to an agent name to stop that agent, or **■ STOP ALL** to stop everyone
 
 ### ✦ AUTO Mode (Brainstorm)
 
-เลือก tab **✦ AUTO** ใน TASK DISPATCH:
+Select the **✦ AUTO** tab in TASK DISPATCH:
 
-- พิมพ์งานที่ต้องการในช่องเดียว
-- กด **✦ BRAINSTORM** — Boss AI จะวิเคราะห์และแจกงานให้ทีมเอง
-- agent ทุกตัวจะเดินไปที่ whiteboard ก่อน จากนั้น Boss จะแบ่งงาน
-- ดู plan และ assignment ที่ Boss วางไว้ได้ในกล่องด้านล่างปุ่ม
+- Describe your goal in a single text box
+- Click **✦ BRAINSTORM** — the Boss AI analyzes and assigns tasks automatically
+- All agents walk to the whiteboard first, then Boss distributes work
+- The Boss's plan and per-agent assignments appear below the button
 
 ### CLI
 
-**รัน agents โดยไม่เปิด UI:**
+**Run agents without the UI:**
 ```bash
 python main.py --agents-only --tasks tasks.json
 ```
 
-`tasks.json` ตัวอย่าง:
+Example `tasks.json`:
 ```json
 {
-  "claude-opus":   "วิเคราะห์แนวโน้ม AI Agent ปี 2026",
-  "claude-sonnet": "ออกแบบ REST API สำหรับ task management",
-  "claude-haiku":  "สรุปข่าวเทคโนโลยีวันนี้",
-  "claude-code":   "เขียน unit test สำหรับ authentication"
+  "claude-opus":   "Analyze AI Agent trends for 2026",
+  "claude-sonnet": "Design a REST API for task management",
+  "claude-haiku":  "Summarize today's tech news",
+  "claude-code":   "Write unit tests for user authentication"
 }
 ```
 
 **Single agent:**
 ```bash
 cd agents
-python agent_runner.py claude-sonnet "ออกแบบ database schema สำหรับ blog"
-python agent_runner.py claude-haiku "สรุป 3 เทคนิค prompt engineering" --stream
+python agent_runner.py claude-sonnet "Design a database schema for a blog"
+python agent_runner.py claude-haiku "List 3 prompt engineering techniques" --stream
 ```
 
 ---
 
 ## Agents
 
-กำหนดได้ที่ `config/team.json`
+Configured in `config/team.json`
 
-| Agent | บทบาท | Model |
-|-------|--------|-------|
-| `claude-opus` | Lead Researcher — วิเคราะห์เชิงลึก | claude-opus-4-6 |
-| `claude-sonnet` | Code Architect — ออกแบบระบบ เขียนโค้ด | claude-sonnet-4-6 |
-| `claude-haiku` | Quick Responder — ตอบเร็ว งานเบา | claude-haiku-4-5 |
+| Agent | Role | Model |
+|-------|------|-------|
+| `claude-opus` | Lead Researcher — deep analysis | claude-opus-4-6 |
+| `claude-sonnet` | Code Architect — system design & coding | claude-sonnet-4-6 |
+| `claude-haiku` | Quick Responder — fast, lightweight tasks | claude-haiku-4-5 |
 | `claude-code` | Dev Agent — debug, refactor, test | claude-sonnet-4-6 |
 
-เพิ่ม/แก้ไข agent ได้โดยแก้ไฟล์ `config/team.json`
+Add or modify agents by editing `config/team.json`.
 
 ---
 
@@ -94,8 +96,8 @@ python agent_runner.py claude-haiku "สรุป 3 เทคนิค prompt en
 
 ```
 python main.py
-  (ไม่มี flag)                    รัน server รอรับ task ผ่านหน้าเว็บ
-  --agents-only --tasks <file>    รัน agents จากไฟล์ JSON (ไม่เปิด UI)
+  (no flags)                      Start server; assign tasks via the web UI
+  --agents-only --tasks <file>    Run agents from a JSON file (no UI)
 ```
 
 ---
@@ -104,34 +106,34 @@ python main.py
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/status` | อ่านสถานะ agents ทั้งหมด |
-| POST | `/status` | อัพเดตสถานะ agent |
-| POST | `/run` | ส่ง tasks แล้วรัน agents ใน background |
-| POST | `/brainstorm` | Boss วิเคราะห์งาน → แบ่งให้ทีม (AUTO mode) |
-| POST | `/stop` | หยุด agent (ตั้งสถานะเป็น idle) |
-| GET | `/health` | health check |
+| GET | `/status` | Get all agent statuses |
+| POST | `/status` | Update a single agent's status |
+| POST | `/run` | Send tasks and run agents in the background |
+| POST | `/brainstorm` | Boss analyzes a goal and assigns work (AUTO mode) |
+| POST | `/stop` | Stop agent(s) and set status to idle |
+| GET | `/health` | Health check |
 
 **POST `/run`:**
 ```json
-{ "tasks": { "claude-opus": "วิเคราะห์...", "claude-sonnet": "ออกแบบ..." } }
+{ "tasks": { "claude-opus": "Analyze...", "claude-sonnet": "Design..." } }
 ```
 
 **POST `/brainstorm`:**
 ```json
-{ "task": "วิเคราะห์และออกแบบระบบ e-commerce" }
+{ "task": "Analyze and design a complete e-commerce system" }
 ```
 
 **POST `/stop`:**
 ```json
-{ "agent_id": "claude-opus" }   // ละไว้ = หยุดทุกตัว
+{ "agent_id": "claude-opus" }   // omit to stop all agents
 ```
 
 ---
 
 ## Status → Zone
 
-| Status | ห้อง | โซน |
-|--------|------|-----|
+| Status | Room | Zone |
+|--------|------|------|
 | `writing` | Research | Desk |
 | `coding` | Dev | Desk 1 |
 | `researching` | Dev | Desk 2 |
