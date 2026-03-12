@@ -4,6 +4,8 @@ Flask Backend — serve frontend + status API
 
 import json
 import os
+import sys
+import threading
 import time
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
@@ -11,6 +13,10 @@ from flask_cors import CORS
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 STATE_FILE = os.path.join(BASE_DIR, "state.json")
+AGENTS_DIR = os.path.join(BASE_DIR, "agents")
+
+if AGENTS_DIR not in sys.path:
+    sys.path.insert(0, AGENTS_DIR)
 
 app = Flask(__name__, static_folder=FRONTEND_DIR)
 CORS(app)
@@ -86,6 +92,27 @@ def get_agent_status(agent_id):
     if agent:
         return jsonify({"agent_id": agent_id, **agent})
     return jsonify({"error": "agent not found"}), 404
+
+
+@app.route("/run", methods=["POST"])
+def run_agents():
+    """รัน agents พร้อมกันในพื้นหลัง"""
+    data = request.get_json()
+    if not data or "tasks" not in data:
+        return jsonify({"error": "tasks required"}), 400
+
+    tasks = data["tasks"]
+    if not isinstance(tasks, dict) or not tasks:
+        return jsonify({"error": "tasks must be a non-empty object"}), 400
+
+    def run_in_background():
+        from orchestrator import run_team
+        run_team(tasks)
+
+    t = threading.Thread(target=run_in_background, daemon=True)
+    t.start()
+
+    return jsonify({"ok": True, "started": list(tasks.keys())})
 
 
 @app.route("/health", methods=["GET"])

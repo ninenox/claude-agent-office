@@ -237,6 +237,191 @@ body {
   font-size: 6px;
 }
 
+/* ─── Task Dispatch Panel ─── */
+#task-panel {
+  width: 100%;
+  max-width: 816px;
+  background: rgba(14, 14, 26, 0.97);
+  border: 2px solid #3a3355;
+  border-radius: 8px;
+  margin-top: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+#task-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 14px;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid #2d2640;
+  transition: background 0.15s;
+  gap: 10px;
+}
+
+#task-panel-header:hover { background: rgba(255,255,255,0.02); }
+
+.task-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: #c4b5fd;
+  flex-shrink: 0;
+}
+
+.task-panel-icon { font-size: 12px; animation: pulse-icon 2s ease-in-out infinite; }
+
+@keyframes pulse-icon {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+#task-running-badge {
+  font-size: 6px;
+  color: #4ade80;
+  animation: blink 1s step-end infinite;
+  letter-spacing: 1px;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+#task-panel-meta { flex: 1; font-size: 6px; color: #4b5563; text-align: center; }
+
+#task-panel-toggle {
+  background: none;
+  border: 1px solid #3a3355;
+  color: #6b7280;
+  width: 22px;
+  height: 22px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 8px;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+#task-panel-toggle:hover { border-color: #6b7280; color: #e2e8f0; }
+
+#task-panel-body { padding: 12px 12px 10px; }
+#task-panel-body.hidden { display: none; }
+
+#task-inputs-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.task-card {
+  background: rgba(20, 20, 36, 0.8);
+  border: 1.5px solid rgba(58, 51, 85, 0.6);
+  border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.task-card:focus-within {
+  border-color: var(--agent-color);
+  box-shadow: 0 0 12px var(--agent-glow);
+}
+
+.task-card-header { display: flex; align-items: center; gap: 6px; }
+.task-card-name { font-size: 7px; }
+.task-card-role { font-size: 5.5px; color: #4b5563; margin-top: -3px; }
+
+.task-input {
+  width: 100%;
+  background: rgba(8, 8, 18, 0.9);
+  border: 1px solid rgba(58, 51, 85, 0.5);
+  border-radius: 4px;
+  color: #d1d5db;
+  font-family: inherit;
+  font-size: 6px;
+  padding: 7px 8px;
+  resize: none;
+  height: 58px;
+  line-height: 1.7;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.task-input::placeholder { color: #374151; }
+
+.task-input:focus {
+  border-color: var(--agent-color);
+  color: #f3f4f6;
+}
+
+.task-run-btn {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--agent-color);
+  color: var(--agent-color);
+  padding: 4px 0;
+  border-radius: 3px;
+  font-family: inherit;
+  font-size: 6px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.15s;
+}
+
+.task-run-btn:hover {
+  background: var(--agent-color);
+  color: #0a0a14;
+  box-shadow: 0 0 8px var(--agent-glow);
+}
+
+.task-run-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+#task-dispatch-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+#dispatch-feedback { font-size: 7px; color: #6b7280; flex: 1; letter-spacing: 0.5px; }
+
+#dispatch-all-btn {
+  background: linear-gradient(135deg, #1e1b4b 0%, #1e3a5f 100%);
+  border: 1.5px solid #4c1d95;
+  color: #e2e8f0;
+  padding: 7px 18px;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 7px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+#dispatch-all-btn:hover {
+  background: linear-gradient(135deg, #2e1065 0%, #1d4ed8 100%);
+  border-color: #7c3aed;
+  box-shadow: 0 0 16px rgba(124, 58, 237, 0.45);
+}
+
+#dispatch-all-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+
 /* ─── Scrollbar ─── */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -246,4 +431,9 @@ body {
 @media (max-width: 900px) {
   #sidebar { position: fixed; right: 0; top: 0; bottom: 0; z-index: 100; }
   #sidebar.hidden { width: 0; }
+  #task-inputs-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+  #task-inputs-grid { grid-template-columns: 1fr; }
 }

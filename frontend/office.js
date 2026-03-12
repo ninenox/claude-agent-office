@@ -299,11 +299,130 @@ function toggleSidebar() {
   btn.textContent = sb.classList.contains("hidden") ? "▶ Panel" : "◀ Panel";
 }
 
+/* ─── Task Dispatch Panel ─── */
+const TASK_DEFAULTS = {
+  "claude-opus":   "วิเคราะห์แนวโน้ม AI ปี 2026...",
+  "claude-sonnet": "ออกแบบ REST API สำหรับ...",
+  "claude-haiku":  "สรุปข่าวเทคโนโลยีวันนี้...",
+  "claude-code":   "เขียน unit test สำหรับ...",
+};
+
+function initTaskPanel() {
+  const grid = document.getElementById("task-inputs-grid");
+  grid.innerHTML = agents.map(a => {
+    const glow = a.color + "33";
+    return `
+      <div class="task-card" style="--agent-color:${a.color};--agent-glow:${glow}">
+        <div class="task-card-header">
+          <span class="agent-dot" style="background:${a.color};box-shadow:0 0 5px ${a.color};width:8px;height:8px;border-radius:50%;flex-shrink:0"></span>
+          <div>
+            <div class="task-card-name" style="color:${a.color}">${a.name}</div>
+            <div class="task-card-role">${a.role}</div>
+          </div>
+        </div>
+        <textarea
+          class="task-input"
+          id="task-input-${a.id}"
+          placeholder="${TASK_DEFAULTS[a.id] || 'พิมพ์ task...'}"
+          style="--agent-color:${a.color}"
+          onkeydown="handleTaskKey(event,'${a.id}')"
+        ></textarea>
+        <button class="task-run-btn" id="run-btn-${a.id}"
+                style="--agent-color:${a.color};--agent-glow:${glow}"
+                onclick="dispatchAgent('${a.id}')">
+          ▶ RUN
+        </button>
+      </div>
+    `;
+  }).join("");
+}
+
+function handleTaskKey(event, agentId) {
+  // Ctrl+Enter หรือ Cmd+Enter = dispatch agent นั้น
+  if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+    event.preventDefault();
+    dispatchAgent(agentId);
+  }
+}
+
+async function dispatchAgent(agentId) {
+  const input = document.getElementById(`task-input-${agentId}`);
+  const task = input.value.trim() || input.placeholder;
+  if (!task) return;
+
+  const btn = document.getElementById(`run-btn-${agentId}`);
+  btn.disabled = true;
+  btn.textContent = "⏳";
+  await sendTasks({ [agentId]: task });
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.textContent = "▶ RUN";
+  }, 3000);
+}
+
+async function dispatchAll() {
+  const tasks = {};
+  agents.forEach(a => {
+    const input = document.getElementById(`task-input-${a.id}`);
+    if (!input) return;
+    const task = input.value.trim() || input.placeholder;
+    if (task) tasks[a.id] = task;
+  });
+  if (Object.keys(tasks).length === 0) return;
+  await sendTasks(tasks);
+}
+
+async function sendTasks(tasks) {
+  const btn = document.getElementById("dispatch-all-btn");
+  const badge = document.getElementById("task-running-badge");
+
+  btn.disabled = true;
+  badge.classList.remove("hidden");
+  setFeedback("⏳ Dispatching to agents...", "#9ca3af");
+
+  try {
+    const res = await fetch("/run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tasks }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      const names = data.started.map(id => id.replace("claude-","")).join(", ");
+      setFeedback(`✓ Started: ${names}`, "#4ade80");
+    } else {
+      setFeedback("✗ Server error — is the server running?", "#ef4444");
+    }
+  } catch (e) {
+    setFeedback("✗ Cannot reach server (demo mode)", "#f59e0b");
+  }
+
+  setTimeout(() => {
+    btn.disabled = false;
+    badge.classList.add("hidden");
+    setFeedback("", "#6b7280");
+  }, 5000);
+}
+
+function setFeedback(text, color) {
+  const el = document.getElementById("dispatch-feedback");
+  el.textContent = text;
+  el.style.color = color;
+}
+
+function toggleTaskPanel() {
+  const body = document.getElementById("task-panel-body");
+  const toggle = document.getElementById("task-panel-toggle");
+  body.classList.toggle("hidden");
+  toggle.textContent = body.classList.contains("hidden") ? "▼" : "▲";
+}
+
 /* ─── Init ─── */
 (function init() {
   // Zone labels
   const labelsEl = document.getElementById("zone-labels");
-  for (const [key, zone] of Object.entries(ZONES)) {
+  for (const [, zone] of Object.entries(ZONES)) {
     const el = document.createElement("div");
     el.className = "zone-label";
     el.style.left = `${(zone.x/CW)*100}%`;
@@ -324,6 +443,9 @@ function toggleSidebar() {
     btn.onclick = () => setStatus(status);
     actionsEl.appendChild(btn);
   });
+
+  // Task dispatch panel
+  initTaskPanel();
 
   // Start render loop
   requestAnimationFrame(render);
