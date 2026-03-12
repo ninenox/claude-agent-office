@@ -3,12 +3,10 @@ Claude Agent Office — Main Entry Point
 รัน Flask server + Agent orchestrator พร้อมกัน
 """
 
-import threading
 import argparse
 import json
 import os
 import sys
-import time
 import shutil
 
 _BASE = os.path.dirname(os.path.abspath(__file__))
@@ -55,28 +53,20 @@ def start_agents(task_file=None):
 
 def main():
     parser = argparse.ArgumentParser(description="Claude Agent Office")
-    parser.add_argument("--server-only", action="store_true", help="รัน Flask server อย่างเดียว")
-    parser.add_argument("--agents-only", action="store_true", help="รัน agents อย่างเดียว")
-    parser.add_argument("--tasks", type=str, help="ไฟล์ JSON กำหนด tasks")
+    parser.add_argument("--agents-only", action="store_true", help="รัน agents อย่างเดียว (ไม่มี UI)")
+    parser.add_argument("--tasks", type=str, help="ไฟล์ JSON กำหนด tasks (ใช้กับ --agents-only)")
     args = parser.parse_args()
 
     init_state()
 
-    if args.server_only:
-        print("[main] Starting server only...")
-        start_server()
-    elif args.agents_only:
+    if args.agents_only:
         print("[main] Starting agents only...")
         start_agents(args.tasks)
     else:
-        print("[main] Starting server + agents...")
+        # default: รัน server อย่างเดียว รอรับ task ผ่านหน้าเว็บ
         print("[main] Office UI → http://localhost:19000")
-
-        server_thread = threading.Thread(target=start_server, daemon=True)
-        server_thread.start()
-
-        time.sleep(1)  # รอ server พร้อม
-        start_agents(args.tasks)
+        print("[main] ส่ง task ได้ที่หน้าเว็บ ⚡ TASK DISPATCH")
+        start_server()
 
 
 if __name__ == "__main__":
