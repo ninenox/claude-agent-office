@@ -67,6 +67,10 @@ Agent สามารถ schedule งานตัวเองได้จาก 
 
 Schedules เก็บใน `config/schedules.json` และรันอัตโนมัติตามเวลา
 
+`create_schedule` รองรับ:
+- **Cron presets** — เช่น `"ทุกวัน 9 โมง"`, `"ทุกชั่วโมง"`
+- **Cron expression โดยตรง** — เช่น `"0 9 * * *"`, `"15 22 * * *"`
+
 ## Boss (Auto mode)
 
 กำหนดใน `team.json` ด้วย key `"boss"`:
@@ -85,11 +89,16 @@ Schedules เก็บใน `config/schedules.json` และรันอัต
 | Method | Path | คำอธิบาย |
 |--------|------|----------|
 | GET | `/team` | Team config |
-| GET/POST | `/status` | สถานะ agents |
+| GET | `/status` | สถานะ agents ทั้งหมด |
+| POST | `/status` | อัปเดตสถานะ agent |
+| GET | `/status/<agent_id>` | สถานะ agent คนเดียว |
 | POST | `/run` | รัน agents |
 | POST | `/brainstorm` | Auto mode |
 | POST | `/stop` | หยุด agents |
-| GET/POST | `/schedules` | จัดการ schedules |
+| GET | `/schedules` | ดู schedules ทั้งหมด |
+| POST | `/schedules` | สร้าง schedule |
+| DELETE | `/schedules/<id>` | ลบ schedule |
+| POST | `/schedules/<id>/toggle` | เปิด/ปิด schedule |
 | GET | `/health` | Health check |
 
 ## License

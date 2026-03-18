@@ -67,6 +67,10 @@ Agents can schedule themselves from a prompt:
 
 Schedules are stored in `config/schedules.json` and run automatically.
 
+The `create_schedule` tool accepts:
+- **Cron presets** — e.g. `"ทุกวัน 9 โมง"`, `"ทุกชั่วโมง"`
+- **Raw cron expressions** — e.g. `"0 9 * * *"`, `"15 22 * * *"`
+
 ## Boss (Auto mode)
 
 Configure in `team.json` under key `"boss"`:
@@ -85,11 +89,16 @@ Configure in `team.json` under key `"boss"`:
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/team` | Team config |
-| GET/POST | `/status` | Agent statuses |
+| GET | `/status` | All agent statuses |
+| POST | `/status` | Update agent status |
+| GET | `/status/<agent_id>` | Single agent status |
 | POST | `/run` | Run agents |
 | POST | `/brainstorm` | Auto mode |
 | POST | `/stop` | Stop agents |
-| GET/POST | `/schedules` | Manage schedules |
+| GET | `/schedules` | List schedules |
+| POST | `/schedules` | Create schedule |
+| DELETE | `/schedules/<id>` | Delete schedule |
+| POST | `/schedules/<id>/toggle` | Enable/disable schedule |
 | GET | `/health` | Health check |
 
 ## License
