@@ -9,8 +9,8 @@ Pixel-art office dashboard — AI agents work in real-time, walking between room
 ## Quick Start
 
 ```bash
-git clone https://github.com/ninenox/pixel-agent-office.git
-cd pixel-agent-office
+git clone https://github.com/ninenox/pix-agent-office.git
+cd pix-agent-office
 bash install.sh && source .venv/bin/activate
 python main.py
 ```
