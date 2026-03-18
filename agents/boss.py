@@ -34,14 +34,15 @@ BOSS_SYSTEM = """คุณคือ Team Lead ของทีม Claude Agent Of
 }}"""
 
 
-def _get_boss_config() -> tuple[str, str, str]:
+def _get_boss_config() -> tuple[str, str, str, str | None]:
     """อ่าน boss config จาก team.json (key "boss") ถ้ามี"""
     config = load_team_config()
     boss_cfg = config.get("boss", {})
-    provider = boss_cfg.get("provider", BOSS_DEFAULT_PROVIDER)
-    model    = boss_cfg.get("model",    BOSS_DEFAULT_MODEL)
-    base_url = boss_cfg.get("base_url", BOSS_DEFAULT_BASE_URL)
-    return provider, model, base_url
+    provider      = boss_cfg.get("provider",      BOSS_DEFAULT_PROVIDER)
+    model         = boss_cfg.get("model",         BOSS_DEFAULT_MODEL)
+    base_url      = boss_cfg.get("base_url",      BOSS_DEFAULT_BASE_URL)
+    system_prompt = boss_cfg.get("system_prompt", None)
+    return provider, model, base_url, system_prompt
 
 
 def _call_boss_api(system: str, user_msg: str, provider: str, model: str, base_url: str) -> str:
@@ -79,7 +80,7 @@ def analyze_task(user_request: str) -> dict:
     Raises:
         ValueError ถ้า parse plan ไม่ได้
     """
-    provider, model, base_url = _get_boss_config()
+    provider, model, base_url, custom_prompt = _get_boss_config()
     config = load_team_config()
 
     # สร้าง team description — ไม่รวม key "boss"
@@ -88,7 +89,14 @@ def analyze_task(user_request: str) -> dict:
         for agent_id, cfg in config.items()
         if agent_id != "boss"
     )
-    system = BOSS_SYSTEM.format(team_desc=team_desc)
+
+    # ใช้ custom system_prompt จาก team.json ถ้ามี ต่อด้วย team_desc และ JSON format
+    if custom_prompt:
+        system = f"{custom_prompt}\n\n{team_desc}\n\n" + "\n".join(
+            BOSS_SYSTEM.splitlines()[-10:]  # เก็บส่วน JSON format rule ไว้เสมอ
+        )
+    else:
+        system = BOSS_SYSTEM.format(team_desc=team_desc)
 
     # Set all agents to "thinking" ก่อน API call
     for agent_id in config.keys():
