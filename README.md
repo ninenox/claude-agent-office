@@ -2,14 +2,14 @@
 
 > [🇹🇭 ภาษาไทย](README.th.md)
 
-Pixel-art office dashboard showing a Claude AI team working in real-time.
+Pixel-art office dashboard showing an AI agent team working in real-time.
 Each agent walks to different zones (desk, whiteboard, break room) based on their current task status — with waypoint pathfinding to navigate around room walls.
 
 **Two modes:**
 - **Manual** — assign tasks to each agent individually
 - **Auto** — describe a goal once; the Boss AI analyzes and distributes work automatically
 
-<img src="examples/example.gif" width="100%" alt="Claude Agent Office">
+<img src="examples/example.gif" width="100%" alt="Pixel Agent Office">
 
 ---
 
@@ -23,7 +23,7 @@ source .venv/bin/activate
 ```
 
 ```bash
-export ANTHROPIC_API_KEY=sk-ant-...
+export ANTHROPIC_API_KEY=sk-ant-...   # if using Anthropic models
 python main.py
 ```
 
@@ -40,13 +40,13 @@ Open browser: http://localhost:19000
 │              │                               │ QUICK ACTIONS│
 │  ⚙ MANUAL    │                               │              │
 │  ✦ AUTO      ├───────────────────────────────┤              │
-│              │ 📄 OUTPUT  [Opus][Sonnet]...  │              │
+│              │ 📄 OUTPUT  [Agent1][Agent2].. │              │
 └──────────────┴───────────────────────────────┴──────────────┘
 ```
 
 - **Left panel** — Task Dispatch: assign tasks per agent (Manual) or describe a goal (Auto)
 - **Center** — Pixel office canvas with animated agents, expands to fill available space
-- **Output panel** — shows each agent's full response; click a tab to switch between agents
+- **Output panel** — shows each agent's full response after a task; click a tab to switch
 - **Right sidebar** — Activity Log and Quick Actions (toggle with ◀ Panel button)
 
 ---
@@ -77,7 +77,7 @@ The output panel below the canvas displays each agent's full response after a ta
 
 - Click an agent tab to view their output
 - A dot next to each tab glows while that agent is running
-- The panel can be collapsed by clicking the header
+- Click the header to collapse/expand the panel
 
 ### CLI
 
@@ -89,18 +89,17 @@ python main.py --agents-only --tasks tasks.json
 Example `tasks.json`:
 ```json
 {
-  "claude-opus":   "Analyze AI Agent trends for 2026",
-  "claude-sonnet": "Design a REST API for task management",
-  "claude-haiku":  "Summarize recent developments in LLMs",
-  "claude-code":   "Write unit tests for user authentication"
+  "research-agent": "Analyze AI Agent trends for 2026",
+  "sa-agent":       "Design a REST API for task management",
+  "officer-agent":  "Summarize recent developments in LLMs"
 }
 ```
 
 **Single agent:**
 ```bash
 cd agents
-python agent_runner.py claude-sonnet "Design a database schema for a blog"
-python agent_runner.py claude-haiku "List 3 prompt engineering techniques" --stream
+python agent_runner.py sa-agent "Design a database schema for a blog"
+python agent_runner.py officer-agent "List 3 prompt engineering techniques" --stream
 ```
 
 ---
@@ -129,17 +128,43 @@ Agents are defined in `config/team.json`. The UI loads agent configuration dynam
 | `ollama` | — | Local models via Ollama |
 | custom | `{PROVIDER}_API_KEY` | Any OpenAI-compatible endpoint |
 
-### Example: adding an Ollama agent
+### Default team (team.json)
 
 ```json
-"qwen-local": {
-  "name": "Qwen Local",
-  "role": "Local Assistant",
-  "model": "qwen2.5:7b",
-  "provider": "ollama",
-  "base_url": "http://localhost:11434/v1",
-  "color": "#f59e0b",
-  "system_prompt": "You are a local assistant named qwen-local..."
+{
+  "research-agent": {
+    "name": "qwen2.5 Researcher",
+    "model": "qwen2.5:7b",
+    "provider": "ollama",
+    "base_url": "http://localhost:11434/v1",
+    "color": "#f97316"
+  },
+  "sa-agent": {
+    "name": "qwen2.5 SA",
+    "model": "qwen2.5:7b",
+    "provider": "ollama",
+    "base_url": "http://localhost:11434/v1",
+    "color": "#8b5cf6"
+  },
+  "officer-agent": {
+    "name": "qwen2.5 Officer",
+    "model": "qwen2.5:7b",
+    "provider": "ollama",
+    "color": "#06b6d4"
+  }
+}
+```
+
+### Example: adding an Anthropic agent
+
+```json
+"claude-opus": {
+  "name": "Claude Opus",
+  "role": "Senior Researcher",
+  "model": "claude-opus-4-6",
+  "provider": "anthropic",
+  "color": "#f97316",
+  "system_prompt": "You are a senior researcher..."
 }
 ```
 
@@ -159,7 +184,7 @@ Agents are defined in `config/team.json`. The UI loads agent configuration dynam
 ### Example: enabling tools for an agent
 
 ```json
-"claude-sonnet": {
+"sa-agent": {
   "tools": ["all"]
 }
 ```
@@ -167,22 +192,25 @@ Agents are defined in `config/team.json`. The UI loads agent configuration dynam
 Or restrict to specific tools:
 
 ```json
-"claude-code": {
+"sa-agent": {
   "tools": ["run_python", "read_file", "write_file"]
 }
 ```
 
 ### Configuring the Boss (AUTO mode)
 
-By default the Boss uses `claude-sonnet-4-6`. Override by adding a `"boss"` key:
+The Boss AI analyzes goals and distributes tasks to agents. Configure it with a `"boss"` key in `team.json`:
 
 ```json
 "boss": {
   "provider": "ollama",
-  "model": "qwen2.5:14b",
-  "base_url": "http://localhost:11434/v1"
+  "model": "qwen2.5:7b",
+  "base_url": "http://localhost:11434/v1",
+  "system_prompt": "คุณคือ Team Lead ของทีม Agent Office..."
 }
 ```
+
+The Boss character is always visible seated at the head of the meeting room table.
 
 ---
 
@@ -231,8 +259,8 @@ Restart the server — `my_tool` is now available to all agents.
 
 ```bash
 cd agents
-python agent_tools.py claude-sonnet "Research the latest LLM benchmarks and write a report" --tools all
-python agent_tools.py claude-code "Write and run a script to sort a CSV file" --tools run_python write_file
+python agent_tools.py sa-agent "Research the latest LLM benchmarks and write a report" --tools all
+python agent_tools.py sa-agent "Write and run a script to sort a CSV file" --tools run_python write_file
 ```
 
 ---
@@ -261,7 +289,7 @@ python main.py
 
 **POST `/run`:**
 ```json
-{ "tasks": { "claude-opus": "Analyze...", "claude-sonnet": "Design..." } }
+{ "tasks": { "sa-agent": "Design...", "research-agent": "Analyze..." } }
 ```
 
 **POST `/brainstorm`:**
@@ -271,16 +299,16 @@ python main.py
 
 **POST `/stop`:**
 ```json
-{ "agent_id": "claude-opus" }   // omit to stop all agents
+{ "agent_id": "sa-agent" }   // omit to stop all agents
 ```
 
 **GET `/status` response:**
 ```json
 {
   "agents": {
-    "claude-opus": {
+    "sa-agent": {
       "status": "idle",
-      "detail": "เสร็จแล้ว ✓ [anthropic]",
+      "detail": "Done ✓ [ollama]",
       "updated_at": "14:32:01",
       "output": "Here is my analysis..."
     }

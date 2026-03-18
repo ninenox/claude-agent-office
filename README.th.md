@@ -2,14 +2,14 @@
 
 > [🇬🇧 English](README.md)
 
-Pixel-art office dashboard แสดง Claude AI team ทำงาน real-time
+Pixel-art office dashboard แสดง AI agent team ทำงาน real-time
 แต่ละ agent เดินไปโซนต่างๆ (โต๊ะ, กระดาน, break room) ตามสถานะงาน พร้อม waypoint pathfinding หลบกำแพงห้อง
 
 **มี 2 Mode:**
 - **Manual** — สั่งงาน agent ทีละตัว
 - **Auto** — อธิบายงานครั้งเดียว Boss AI วิเคราะห์และแจกงานให้ทีมเอง
 
-<img src="examples/example.gif" width="100%" alt="Claude Agent Office">
+<img src="examples/example.gif" width="100%" alt="Pixel Agent Office">
 
 ---
 
@@ -23,7 +23,7 @@ source .venv/bin/activate
 ```
 
 ```bash
-export ANTHROPIC_API_KEY=sk-ant-...
+export ANTHROPIC_API_KEY=sk-ant-...   # ถ้าใช้ Anthropic models
 python main.py
 ```
 
@@ -40,13 +40,13 @@ python main.py
 │              │                               │ QUICK ACTIONS│
 │  ⚙ MANUAL    │                               │              │
 │  ✦ AUTO      ├───────────────────────────────┤              │
-│              │ 📄 OUTPUT  [Opus][Sonnet]...  │              │
+│              │ 📄 OUTPUT  [Agent1][Agent2].. │              │
 └──────────────┴───────────────────────────────┴──────────────┘
 ```
 
 - **Panel ซ้าย** — Task Dispatch: สั่งงานแต่ละ agent (Manual) หรืออธิบายเป้าหมาย (Auto)
 - **กลาง** — Pixel office canvas พร้อม agent เคลื่อนไหว ขยายเต็มพื้นที่ที่เหลือ
-- **Output panel** — แสดงผลลัพธ์เต็มของแต่ละ agent คลิก tab เพื่อสลับดู
+- **Output panel** — แสดงผลลัพธ์เต็มของ agent หลังทำงานเสร็จ คลิก tab เพื่อสลับดู
 - **Sidebar ขวา** — Activity Log และ Quick Actions (toggle ด้วยปุ่ม ◀ Panel)
 
 ---
@@ -89,18 +89,17 @@ python main.py --agents-only --tasks tasks.json
 `tasks.json` ตัวอย่าง:
 ```json
 {
-  "claude-opus":   "วิเคราะห์แนวโน้ม AI Agent ปี 2026",
-  "claude-sonnet": "ออกแบบ REST API สำหรับ task management",
-  "claude-haiku":  "สรุปพัฒนาการล่าสุดของ LLM",
-  "claude-code":   "เขียน unit test สำหรับ authentication"
+  "research-agent": "วิเคราะห์แนวโน้ม AI Agent ปี 2026",
+  "sa-agent":       "ออกแบบ REST API สำหรับ task management",
+  "officer-agent":  "สรุปพัฒนาการล่าสุดของ LLM"
 }
 ```
 
 **Single agent:**
 ```bash
 cd agents
-python agent_runner.py claude-sonnet "ออกแบบ database schema สำหรับ blog"
-python agent_runner.py claude-haiku "สรุป 3 เทคนิค prompt engineering" --stream
+python agent_runner.py sa-agent "ออกแบบ database schema สำหรับ blog"
+python agent_runner.py officer-agent "สรุป 3 เทคนิค prompt engineering" --stream
 ```
 
 ---
@@ -129,17 +128,43 @@ python agent_runner.py claude-haiku "สรุป 3 เทคนิค prompt en
 | `ollama` | — | รัน model ใน local |
 | custom | `{PROVIDER}_API_KEY` | OpenAI-compatible endpoint อื่นๆ |
 
-### ตัวอย่าง: เพิ่ม Ollama agent
+### Default team (team.json)
 
 ```json
-"qwen-local": {
-  "name": "Qwen Local",
-  "role": "Local Assistant",
-  "model": "qwen2.5:7b",
-  "provider": "ollama",
-  "base_url": "http://localhost:11434/v1",
-  "color": "#f59e0b",
-  "system_prompt": "คุณคือ Local Assistant ชื่อ qwen-local..."
+{
+  "research-agent": {
+    "name": "qwen2.5 Researcher",
+    "model": "qwen2.5:7b",
+    "provider": "ollama",
+    "base_url": "http://localhost:11434/v1",
+    "color": "#f97316"
+  },
+  "sa-agent": {
+    "name": "qwen2.5 SA",
+    "model": "qwen2.5:7b",
+    "provider": "ollama",
+    "base_url": "http://localhost:11434/v1",
+    "color": "#8b5cf6"
+  },
+  "officer-agent": {
+    "name": "qwen2.5 Officer",
+    "model": "qwen2.5:7b",
+    "provider": "ollama",
+    "color": "#06b6d4"
+  }
+}
+```
+
+### ตัวอย่าง: เพิ่ม Anthropic agent
+
+```json
+"claude-opus": {
+  "name": "Claude Opus",
+  "role": "นักวิจัยอาวุโส",
+  "model": "claude-opus-4-6",
+  "provider": "anthropic",
+  "color": "#f97316",
+  "system_prompt": "คุณคือนักวิจัยอาวุโส..."
 }
 ```
 
@@ -159,7 +184,7 @@ python agent_runner.py claude-haiku "สรุป 3 เทคนิค prompt en
 ### ตัวอย่าง: เปิดใช้ tools ให้ agent
 
 ```json
-"claude-sonnet": {
+"sa-agent": {
   "tools": ["all"]
 }
 ```
@@ -167,22 +192,25 @@ python agent_runner.py claude-haiku "สรุป 3 เทคนิค prompt en
 หรือระบุเฉพาะ tools ที่ต้องการ:
 
 ```json
-"claude-code": {
+"sa-agent": {
   "tools": ["run_python", "read_file", "write_file"]
 }
 ```
 
 ### กำหนด Boss (AUTO mode)
 
-Boss ใช้ `claude-sonnet-4-6` เป็น default เปลี่ยนได้โดยเพิ่ม key `"boss"`:
+Boss AI วิเคราะห์เป้าหมายและแบ่งงานให้ทีม กำหนดได้ด้วย key `"boss"` ใน `team.json`:
 
 ```json
 "boss": {
   "provider": "ollama",
-  "model": "qwen2.5:14b",
-  "base_url": "http://localhost:11434/v1"
+  "model": "qwen2.5:7b",
+  "base_url": "http://localhost:11434/v1",
+  "system_prompt": "คุณคือ Team Lead ของทีม Agent Office..."
 }
 ```
+
+ตัวละคร Boss จะนั่งอยู่หัวโต๊ะประชุมตลอดเวลา
 
 ---
 
@@ -231,8 +259,8 @@ Restart server — `my_tool` พร้อมใช้งานทันที
 
 ```bash
 cd agents
-python agent_tools.py claude-sonnet "วิจัย LLM benchmark ล่าสุดและเขียนรายงาน" --tools all
-python agent_tools.py claude-code "เขียนและรัน script เรียง CSV" --tools run_python write_file
+python agent_tools.py sa-agent "วิจัย LLM benchmark ล่าสุดและเขียนรายงาน" --tools all
+python agent_tools.py sa-agent "เขียนและรัน script เรียง CSV" --tools run_python write_file
 ```
 
 ---
@@ -261,7 +289,7 @@ python main.py
 
 **POST `/run`:**
 ```json
-{ "tasks": { "claude-opus": "วิเคราะห์...", "claude-sonnet": "ออกแบบ..." } }
+{ "tasks": { "sa-agent": "ออกแบบ...", "research-agent": "วิเคราะห์..." } }
 ```
 
 **POST `/brainstorm`:**
@@ -271,16 +299,16 @@ python main.py
 
 **POST `/stop`:**
 ```json
-{ "agent_id": "claude-opus" }   // ละไว้ = หยุดทุกตัว
+{ "agent_id": "sa-agent" }   // ละไว้ = หยุดทุกตัว
 ```
 
 **GET `/status` response:**
 ```json
 {
   "agents": {
-    "claude-opus": {
+    "sa-agent": {
       "status": "idle",
-      "detail": "เสร็จแล้ว ✓ [anthropic]",
+      "detail": "เสร็จแล้ว ✓ [ollama]",
       "updated_at": "14:32:01",
       "output": "นี่คือผลการวิเคราะห์..."
     }
