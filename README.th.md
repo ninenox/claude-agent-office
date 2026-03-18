@@ -2,333 +2,95 @@
 
 > [🇬🇧 English](README.md)
 
-Pixel-art office dashboard แสดง AI agent team ทำงาน real-time
-แต่ละ agent เดินไปโซนต่างๆ (โต๊ะ, กระดาน, break room) ตามสถานะงาน พร้อม waypoint pathfinding หลบกำแพงห้อง
-
-**มี 2 Mode:**
-- **Manual** — สั่งงาน agent ทีละตัว
-- **Auto** — อธิบายงานครั้งเดียว Boss AI วิเคราะห์และแจกงานให้ทีมเอง
+Pixel-art office dashboard — AI agents ทำงาน real-time เดินไปห้องต่างๆ ตามสถานะงาน
 
 <img src="examples/example.gif" width="100%" alt="Pixel Agent Office">
 
----
-
-## Quick Start
+## เริ่มต้นใช้งาน
 
 ```bash
 git clone https://github.com/ninenox/pixel-agent-office.git
 cd pixel-agent-office
-bash install.sh
-source .venv/bin/activate
-```
-
-```bash
-export ANTHROPIC_API_KEY=sk-ant-...   # ถ้าใช้ Anthropic models
+bash install.sh && source .venv/bin/activate
 python main.py
 ```
 
-เปิดเบราว์เซอร์: http://localhost:19000
+เปิด: http://localhost:19000
 
----
+## Mode การใช้งาน
 
-## Layout ของ UI
+| Mode | วิธี |
+|------|------|
+| **Manual** | พิมพ์ task ให้แต่ละ agent → กด ▶ RUN |
+| **Auto** | อธิบายเป้าหมาย → กด ✦ BRAINSTORM → Boss AI แบ่งงานให้ทีม |
 
-```
-┌──────────────┬───────────────────────────────┬──────────────┐
-│ TASK DISPATCH│                               │ ACTIVITY LOG │
-│ (panel ซ้าย)  │      Pixel Office Canvas      │              │
-│              │                               │ QUICK ACTIONS│
-│  ⚙ MANUAL    │                               │              │
-│  ✦ AUTO      ├───────────────────────────────┤              │
-│              │ 📄 OUTPUT  [Agent1][Agent2].. │              │
-└──────────────┴───────────────────────────────┴──────────────┘
-```
+## Agents (`config/team.json`)
 
-- **Panel ซ้าย** — Task Dispatch: สั่งงานแต่ละ agent (Manual) หรืออธิบายเป้าหมาย (Auto)
-- **กลาง** — Pixel office canvas พร้อม agent เคลื่อนไหว ขยายเต็มพื้นที่ที่เหลือ
-- **Output panel** — แสดงผลลัพธ์เต็มของ agent หลังทำงานเสร็จ คลิก tab เพื่อสลับดู
-- **Sidebar ขวา** — Activity Log และ Quick Actions (toggle ด้วยปุ่ม ◀ Panel)
-
----
-
-## วิธีใช้งาน
-
-### ⚡ MANUAL Mode
-
-เลือก tab **⚙ MANUAL** ใน Task Dispatch panel ด้านซ้าย
-
-- พิมพ์งานในช่อง input ของแต่ละ agent
-- กด **▶ RUN** เพื่อส่งงาน agent ทีละตัว หรือ `Ctrl+Enter`
-- กด **🚀 DISPATCH ALL** เพื่อส่งงานทุก agent พร้อมกัน
-- กด **■** หน้าชื่อ agent เพื่อหยุดงานนั้น หรือ **■ STOP ALL** เพื่อหยุดทุกตัว
-
-### ✦ AUTO Mode (Brainstorm)
-
-เลือก tab **✦ AUTO** ใน Task Dispatch panel
-
-- พิมพ์งานที่ต้องการในช่องเดียว
-- กด **✦ BRAINSTORM** — Boss AI จะวิเคราะห์และแจกงานให้ทีมเอง
-- agent ทุกตัวจะเดินไปที่ whiteboard ก่อน จากนั้น Boss จะแบ่งงาน
-- ดู plan และ assignment ที่ Boss วางไว้ได้ในกล่องด้านล่างปุ่ม
-
-### 📄 Output Panel
-
-Output panel อยู่ใต้ canvas แสดงผลลัพธ์เต็มของ agent หลังทำงานเสร็จ
-
-- คลิก tab ของ agent เพื่อดู output ของแต่ละตัว
-- dot ข้าง tab จะกระพริบแสดงสีสถานะขณะ agent กำลังทำงาน
-- คลิก header เพื่อย่อ/ขยาย panel
-
-### CLI
-
-**รัน agents โดยไม่เปิด UI:**
-```bash
-python main.py --agents-only --tasks tasks.json
-```
-
-`tasks.json` ตัวอย่าง:
-```json
-{
-  "research-agent": "วิเคราะห์แนวโน้ม AI Agent ปี 2026",
-  "sa-agent":       "ออกแบบ REST API สำหรับ task management",
-  "officer-agent":  "สรุปพัฒนาการล่าสุดของ LLM"
-}
-```
-
-**Single agent:**
-```bash
-cd agents
-python agent_runner.py sa-agent "ออกแบบ database schema สำหรับ blog"
-python agent_runner.py officer-agent "สรุป 3 เทคนิค prompt engineering" --stream
-```
-
----
-
-## Agents
-
-กำหนดได้ที่ `config/team.json` — เพิ่ม ลบ หรือแก้ไข agent ได้เลยโดยไม่ต้องแก้โค้ด รีเฟรชเบราว์เซอร์หลังบันทึก
-
-| Field | คำอธิบาย |
-|-------|----------|
-| `name` | ชื่อที่แสดงใน UI |
-| `role` | คำอธิบายตำแหน่งสั้นๆ |
-| `model` | Model ID ที่ใช้ |
-| `provider` | `anthropic` \| `openai` \| `ollama` |
-| `base_url` | API endpoint (สำหรับ ollama หรือ compatible API) |
-| `color` | สีของ agent (hex) |
-| `system_prompt` | System prompt กำหนดความสามารถและแนวทางการทำงาน |
-| `tools` | รายชื่อ tools ที่เปิดใช้ เช่น `["all"]` หรือ `["web_search", "read_file"]` |
-
-### Provider ที่รองรับ
-
-| Provider | API Key | หมายเหตุ |
-|----------|---------|----------|
-| `anthropic` | `ANTHROPIC_API_KEY` | Default |
-| `openai` | `OPENAI_API_KEY` | GPT-4o, o1 ฯลฯ |
-| `ollama` | — | รัน model ใน local |
-| custom | `{PROVIDER}_API_KEY` | OpenAI-compatible endpoint อื่นๆ |
-
-### Default team (team.json)
+เพิ่ม ลบ หรือแก้ไข agent ได้ที่ `team.json` โดยไม่ต้องแก้โค้ด
 
 ```json
-{
-  "research-agent": {
-    "name": "qwen2.5 Researcher",
-    "model": "qwen2.5:7b",
-    "provider": "ollama",
-    "base_url": "http://localhost:11434/v1",
-    "color": "#f97316"
-  },
-  "sa-agent": {
-    "name": "qwen2.5 SA",
-    "model": "qwen2.5:7b",
-    "provider": "ollama",
-    "base_url": "http://localhost:11434/v1",
-    "color": "#8b5cf6"
-  },
-  "officer-agent": {
-    "name": "qwen2.5 Officer",
-    "model": "qwen2.5:7b",
-    "provider": "ollama",
-    "color": "#06b6d4"
-  }
-}
-```
-
-### ตัวอย่าง: เพิ่ม Anthropic agent
-
-```json
-"claude-opus": {
-  "name": "Claude Opus",
-  "role": "นักวิจัยอาวุโส",
-  "model": "claude-opus-4-6",
-  "provider": "anthropic",
+"my-agent": {
+  "name": "My Agent",
+  "role": "Researcher",
+  "model": "qwen2.5:7b",
+  "provider": "ollama",
+  "base_url": "http://localhost:11434/v1",
   "color": "#f97316",
-  "system_prompt": "คุณคือนักวิจัยอาวุโส..."
+  "system_prompt": "คุณคือ...",
+  "tools": ["web_search", "read_file"]
 }
 ```
 
-### ตัวอย่าง: เพิ่ม OpenAI agent
+Provider ที่รองรับ: `anthropic`, `openai`, `ollama` หรือ OpenAI-compatible endpoint อื่นๆ
 
-```json
-"gpt-agent": {
-  "name": "GPT Agent",
-  "role": "OpenAI Assistant",
-  "model": "gpt-4o",
-  "provider": "openai",
-  "color": "#10b981",
-  "system_prompt": "คุณคือ OpenAI assistant ชื่อ gpt-agent..."
-}
-```
+## Tools (`agents/tools/`)
 
-### ตัวอย่าง: เปิดใช้ tools ให้ agent
+| Tool | คำอธิบาย | ต้องการ |
+|------|----------|---------|
+| `read_file` | อ่านไฟล์จาก `workspace/` | — |
+| `write_file` | เขียนไฟล์ไปที่ `outputs/` | — |
+| `run_python` | รัน Python code | — |
+| `http_request` | HTTP GET/POST/PUT/DELETE | — |
+| `shell_command` | รัน shell command (บล็อก: rm, sudo, curl…) | — |
+| `web_search` | ค้นหาเว็บ real-time | `BRAVE_API_KEY` |
+| `google_calendar` | ดึงนัดหมายจาก Google Calendar | OAuth setup |
+| `telegram_notify` | ส่งข้อความผ่าน Telegram | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` |
+| `create_schedule` | สร้าง recurring task ให้ agent | — |
 
-```json
-"sa-agent": {
-  "tools": ["all"]
-}
-```
+**เพิ่ม tool ใหม่:** สร้าง `agents/tools/my_tool.py` extends `BaseTool` → restart
 
-หรือระบุเฉพาะ tools ที่ต้องการ:
+## Scheduler
 
-```json
-"sa-agent": {
-  "tools": ["run_python", "read_file", "write_file"]
-}
-```
+Agent สามารถ schedule งานตัวเองได้จาก prompt:
 
-### กำหนด Boss (AUTO mode)
+> _"แสดงนัดหมายทุกวัน 10 โมงเช้าแล้วแจ้งผ่าน Telegram"_
 
-Boss AI วิเคราะห์เป้าหมายและแบ่งงานให้ทีม กำหนดได้ด้วย key `"boss"` ใน `team.json`:
+Schedules เก็บใน `config/schedules.json` และรันอัตโนมัติตามเวลา
+
+## Boss (Auto mode)
+
+กำหนดใน `team.json` ด้วย key `"boss"`:
 
 ```json
 "boss": {
   "provider": "ollama",
   "model": "qwen2.5:7b",
   "base_url": "http://localhost:11434/v1",
-  "system_prompt": "คุณคือ Team Lead ของทีม Agent Office..."
+  "system_prompt": "คุณคือ Team Lead..."
 }
 ```
-
-ตัวละคร Boss จะนั่งอยู่หัวโต๊ะประชุมตลอดเวลา
-
----
-
-## Tools
-
-Agent สามารถใช้ tools เพื่อโต้ตอบกับระบบภายนอกได้ Tools อยู่ใน `agents/tools/` และถูก **auto-discover** ตอน startup — สร้างไฟล์ใหม่แล้ว restart เท่านั้น ไม่ต้องแก้โค้ดไฟล์อื่น
-
-### Tools ที่มีให้ใช้
-
-| Tool | คำอธิบาย | ต้องการ |
-|------|----------|---------|
-| `read_file` | อ่านไฟล์จาก `workspace/` | — |
-| `write_file` | เขียนไฟล์ไปที่ `outputs/` (write หรือ append) | — |
-| `run_python` | รัน Python code คืน stdout (timeout 15s) | — |
-| `http_request` | HTTP GET / POST / PUT / DELETE | — |
-| `web_search` | ค้นหาเว็บ real-time ผ่าน Brave Search API | `BRAVE_API_KEY` |
-
-`workspace/` — วางไฟล์ input ที่ต้องการให้ agent อ่านไว้ที่นี่
-`outputs/` — agent เขียนผลลัพธ์ไว้ที่นี่ พร้อม save อัตโนมัติหลังทุก task
-
-### เพิ่ม Tool ใหม่
-
-สร้าง `agents/tools/my_tool.py`:
-
-```python
-from .base import BaseTool
-
-class MyTool(BaseTool):
-    name = "my_tool"
-    description = "อธิบายว่า tool นี้ทำอะไร"
-    input_schema = {
-        "type": "object",
-        "properties": {
-            "input": {"type": "string", "description": "..."},
-        },
-        "required": ["input"],
-    }
-
-    def run(self, input: str) -> str:
-        return f"result: {input}"
-```
-
-Restart server — `my_tool` พร้อมใช้งานทันที
-
-### รัน Agent พร้อม Tools (CLI)
-
-```bash
-cd agents
-python agent_tools.py sa-agent "วิจัย LLM benchmark ล่าสุดและเขียนรายงาน" --tools all
-python agent_tools.py sa-agent "เขียนและรัน script เรียง CSV" --tools run_python write_file
-```
-
----
-
-## CLI Options
-
-```
-python main.py
-  (ไม่มี flag)                    รัน server รอรับ task ผ่านหน้าเว็บ
-  --agents-only --tasks <file>    รัน agents จากไฟล์ JSON (ไม่เปิด UI)
-```
-
----
 
 ## API
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/team` | ดึง team config จาก `team.json` (UI โหลดตอน start) |
-| GET | `/status` | อ่านสถานะ agents ทั้งหมด (มี field `output` เมื่อมีผลลัพธ์) |
-| POST | `/status` | อัพเดตสถานะ agent |
-| POST | `/run` | ส่ง tasks แล้วรัน agents ใน background |
-| POST | `/brainstorm` | Boss วิเคราะห์งาน → แบ่งให้ทีม (AUTO mode) |
-| POST | `/stop` | หยุด agent (ตั้งสถานะเป็น idle) |
-| GET | `/health` | health check |
-
-**POST `/run`:**
-```json
-{ "tasks": { "sa-agent": "ออกแบบ...", "research-agent": "วิเคราะห์..." } }
-```
-
-**POST `/brainstorm`:**
-```json
-{ "task": "วิเคราะห์และออกแบบระบบ e-commerce" }
-```
-
-**POST `/stop`:**
-```json
-{ "agent_id": "sa-agent" }   // ละไว้ = หยุดทุกตัว
-```
-
-**GET `/status` response:**
-```json
-{
-  "agents": {
-    "sa-agent": {
-      "status": "idle",
-      "detail": "เสร็จแล้ว ✓ [ollama]",
-      "updated_at": "14:32:01",
-      "output": "นี่คือผลการวิเคราะห์..."
-    }
-  }
-}
-```
-
----
-
-## Status → Zone
-
-| Status | ห้อง | โซน |
-|--------|------|-----|
-| `writing` | Research | Desk |
-| `coding` | Dev | Desk 1 |
-| `researching` | Dev | Desk 2 |
-| `thinking` / `planning` | Meeting | Whiteboard |
-| `idle` / `error` | Break Room | — |
-
----
+| Method | Path | คำอธิบาย |
+|--------|------|----------|
+| GET | `/team` | Team config |
+| GET/POST | `/status` | สถานะ agents |
+| POST | `/run` | รัน agents |
+| POST | `/brainstorm` | Auto mode |
+| POST | `/stop` | หยุด agents |
+| GET/POST | `/schedules` | จัดการ schedules |
+| GET | `/health` | Health check |
 
 ## License
 
