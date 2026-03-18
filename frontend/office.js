@@ -209,6 +209,50 @@ function drawOffice(ctx) {
   });
 }
 
+/* ─── Boss Character ─── */
+function drawBossChar(ctx, x, y, frame) {
+  const bobY = Math.sin(frame * 0.08) * 0.8; // gentle bob (seated)
+
+  // Shadow
+  ctx.fillStyle = "rgba(0,0,0,0.15)";
+  ctx.beginPath();
+  ctx.ellipse(x, y + 18*S, 5*S, 2*S, 0, 0, Math.PI*2);
+  ctx.fill();
+
+  // Legs (seated — short, hidden behind table)
+  drawRect(ctx, x-3*S, y+10*S, 2*S, 5*S, "#1f2937");
+  drawRect(ctx, x+1*S, y+10*S, 2*S, 5*S, "#1f2937");
+
+  // Body — dark suit
+  drawRect(ctx, x-4*S, y+2*S+bobY, 8*S, 9*S, "#1e293b");
+  // Shirt / tie
+  drawRect(ctx, x-1*S, y+3*S+bobY, 2*S, 7*S, "#f8fafc");
+  drawRect(ctx, x-0.5*S, y+4*S+bobY, 1*S, 5*S, "#ef4444");
+  // Arms
+  drawRect(ctx, x-6*S, y+3*S+bobY, 2*S, 6*S, "#1e293b");
+  drawRect(ctx, x+4*S, y+3*S+bobY, 2*S, 6*S, "#1e293b");
+  drawRect(ctx, x-6*S, y+8*S+bobY, 2*S, 2*S, "#fcd5b5");
+  drawRect(ctx, x+4*S, y+8*S+bobY, 2*S, 2*S, "#fcd5b5");
+
+  // Head
+  drawRect(ctx, x-4*S, y-7*S+bobY, 8*S, 9*S, "#fcd5b5");
+  // Hair — slicked back dark
+  drawRect(ctx, x-4*S, y-8*S+bobY, 8*S, 3*S, "#1a1a2e");
+  drawRect(ctx, x+4*S, y-7*S+bobY, 2*S, 4*S, "#1a1a2e");
+
+  // Eyes — forward facing
+  drawRect(ctx, x-2*S, y-3*S+bobY, 1.5*S, 2*S, "#1a1a2e");
+  drawRect(ctx, x+1*S, y-3*S+bobY, 1.5*S, 2*S, "#1a1a2e");
+  drawRect(ctx, x-1.5*S, y-3*S+bobY, 0.8*S, 0.8*S, "#fff");
+  drawRect(ctx, x+1.5*S, y-3*S+bobY, 0.8*S, 0.8*S, "#fff");
+
+  // Name label
+  ctx.fillStyle = "#fbbf24";
+  ctx.font = "bold 10px 'Press Start 2P', monospace";
+  ctx.textAlign = "center";
+  ctx.fillText("BOSS", x, y - 14*S + bobY);
+}
+
 /* ─── Main Loop ─── */
 const canvas = document.getElementById("office");
 const ctx = canvas.getContext("2d");
@@ -244,6 +288,9 @@ function render() {
   // Draw
   ctx.clearRect(0, 0, CW, CH);
   drawOffice(ctx);
+
+  // Boss — always seated at head of meeting table
+  drawBossChar(ctx, 666, 185, frame);
 
   // Agents sorted by Y (depth)
   const sorted = [...agents].sort((a,b) => a.y - b.y);

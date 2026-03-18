@@ -71,7 +71,7 @@ async function loadAgentsFromServer() {
   try {
     const res = await fetch("/team");
     const teamConfig = await res.json();
-    agents = Object.entries(teamConfig).map(([id, cfg], i) => ({
+    agents = Object.entries(teamConfig).filter(([id]) => id !== "boss").map(([id, cfg], i) => ({
       id,
       name: cfg.name,
       role: cfg.role,
