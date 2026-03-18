@@ -4,7 +4,7 @@
 
 Pixel-art office dashboard — AI agents ทำงาน real-time เดินไปห้องต่างๆ ตามสถานะงาน
 
-<img src="examples/example.gif" width="100%" alt="Pixel Agent Office">
+<img src="examples/example.gif" width="100%" alt="Pix Agent Office">
 
 ## เริ่มต้นใช้งาน
 

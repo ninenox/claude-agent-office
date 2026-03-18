@@ -4,7 +4,7 @@
 
 Pixel-art office dashboard — AI agents work in real-time, walking between rooms based on their task status.
 
-<img src="examples/example.gif" width="100%" alt="Pixel Agent Office">
+<img src="examples/example.gif" width="100%" alt="Pix Agent Office">
 
 ## Quick Start
 
